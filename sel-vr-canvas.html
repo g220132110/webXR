@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SEL 社會情緒學習 VR（Canvas 中文版）</title>
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    #loading {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 24px;
+      font-family: "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+      z-index: 9999;
+      background: rgba(0,0,0,0.8);
+      padding: 20px 40px;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="loading">載入中...</div>
+
+  <a-scene>
+    <!-- 相機與凝視游標 -->
+    <a-entity id="rig" position="0 1.6 0">
+      <a-camera>
+        <a-cursor
+          id="cursor"
+          fuse="true"
+          fuse-timeout="1500"
+          raycaster="objects: .clickable">
+          <a-ring color="#ffffff" radius-inner="0.02" radius-outer="0.03"></a-ring>
+          <a-circle color="#00ff00" radius="0.02" opacity="0"
+            animation__fuse="property: opacity; from: 0; to: 0.8; dur: 1500; startEvents: fusing"
+            animation__reset="property: opacity; to: 0; dur: 100; startEvents: click"></a-circle>
+        </a-cursor>
+      </a-camera>
+    </a-entity>
+
+    <!-- 場景 1: 自我覺察 -->
+    <a-entity id="scene-1" visible="true">
+      <a-sky color="#FFE5B4"></a-sky>
+      <a-entity light="type: ambient; intensity: 1"></a-entity>
+      
+      <!-- 標題（使用 Canvas） -->
+      <a-plane id="title-1" position="0 2.2 -3" width="6" height="1" material="shader: flat"></a-plane>
+      
+      <!-- 按鈕 A -->
+      <a-entity position="-1.3 1.3 -3" class="clickable" id="scene1-btn-a">
+        <a-box width="2" height="0.7" depth="0.1" color="#FF6B6B"
+          animation__hover="property: scale; to: 1.1 1.1 1.1; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <a-plane id="btn-1a-text" position="0 0 0.06" width="1.9" height="0.6" material="shader: flat"></a-plane>
+      </a-entity>
+      
+      <!-- 按鈕 B -->
+      <a-entity position="1.3 1.3 -3" class="clickable" id="scene1-btn-b">
+        <a-box width="2" height="0.7" depth="0.1" color="#51CF66"
+          animation__hover="property: scale; to: 1.1 1.1 1.1; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <a-plane id="btn-1b-text" position="0 0 0.06" width="1.9" height="0.6" material="shader: flat"></a-plane>
+      </a-entity>
+
+      <!-- 提示 -->
+      <a-plane id="hint-1" position="0 0.5 -3" width="5" height="0.6" material="shader: flat"></a-plane>
+    </a-entity>
+
+    <!-- 場景 2: 自我管理 -->
+    <a-entity id="scene-2" visible="false">
+      <a-sky color="#B3D9FF"></a-sky>
+      <a-entity light="type: ambient; intensity: 1"></a-entity>
+      
+      <a-plane id="title-2" position="0 2.2 -3" width="6" height="1" material="shader: flat"></a-plane>
+      
+      <a-circle
+        radius="0.4"
+        position="0 1.3 -3"
+        color="#4ECDC4"
+        opacity="0.8"
+        animation__breathe="property: scale; from: 1 1 1; to: 1.8 1.8 1.8; dir: alternate; dur: 3000; loop: true; easing: easeInOutQuad"></a-circle>
+      
+      <a-plane id="breath-text" position="0 0.6 -3" width="3" height="0.5" material="shader: flat"></a-plane>
+      
+      <a-entity position="0 0 -3" class="clickable" id="scene2-btn" visible="false">
+        <a-box width="2.5" height="0.7" depth="0.1" color="#4A90E2"
+          animation__hover="property: scale; to: 1.1 1.1 1.1; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <a-plane id="btn-2-text" position="0 0 0.06" width="2.4" height="0.6" material="shader: flat"></a-plane>
+      </a-entity>
+    </a-entity>
+
+    <!-- 場景 3: 社會覺察 -->
+    <a-entity id="scene-3" visible="false">
+      <a-sky color="#D5E5F2"></a-sky>
+      <a-entity light="type: ambient; intensity: 1"></a-entity>
+      
+      <a-plane id="title-3" position="0 2.2 -3" width="6" height="1" material="shader: flat"></a-plane>
+      
+      <a-entity position="-1.3 1.3 -3" class="clickable" id="scene3-btn-a">
+        <a-box width="2" height="0.7" depth="0.1" color="#FF9966"
+          animation__hover="property: scale; to: 1.1 1.1 1.1; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <a-plane id="btn-3a-text" position="0 0 0.06" width="1.9" height="0.6" material="shader: flat"></a-plane>
+      </a-entity>
+      
+      <a-entity position="1.3 1.3 -3" class="clickable" id="scene3-btn-b">
+        <a-box width="2" height="0.7" depth="0.1" color="#5DADE2"
+          animation__hover="property: scale; to: 1.1 1.1 1.1; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <a-plane id="btn-3b-text" position="0 0 0.06" width="1.9" height="0.6" material="shader: flat"></a-plane>
+      </a-entity>
+
+      <a-plane id="hint-3" position="0 0.5 -3" width="4" height="0.5" material="shader: flat" visible="false"></a-plane>
+    </a-entity>
+
+    <!-- 場景 4: 人際技巧 -->
+    <a-entity id="scene-4" visible="false">
+      <a-sky color="#F5DEB3"></a-sky>
+      <a-entity light="type: ambient; intensity: 1"></a-entity>
+      
+      <a-plane id="title-4" position="0 2.2 -3" width="6" height="1" material="shader: flat"></a-plane>
+      
+      <a-entity position="-1.3 1.3 -3" class="clickable" id="scene4-btn-a">
+        <a-box width="2" height="0.7" depth="0.1" color="#E74C3C"
+          animation__hover="property: scale; to: 1.1 1.1 1.1; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <a-plane id="btn-4a-text" position="0 0 0.06" width="1.9" height="0.6" material="shader: flat"></a-plane>
+      </a-entity>
+      
+      <a-entity position="1.3 1.3 -3" class="clickable" id="scene4-btn-b">
+        <a-box width="2" height="0.7" depth="0.1" color="#2ECC71"
+          animation__hover="property: scale; to: 1.1 1.1 1.1; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <a-plane id="btn-4b-text" position="0 0 0.06" width="1.9" height="0.6" material="shader: flat"></a-plane>
+      </a-entity>
+
+      <a-plane id="hint-4" position="0 0.5 -3" width="4.5" height="0.5" material="shader: flat" visible="false"></a-plane>
+    </a-entity>
+
+    <!-- 場景 5: 負責任的決策 -->
+    <a-entity id="scene-5" visible="false">
+      <a-sky color="#FFDAB9"></a-sky>
+      <a-entity light="type: ambient; intensity: 1"></a-entity>
+      
+      <a-plane id="title-5" position="0 2.2 -3" width="6" height="1" material="shader: flat"></a-plane>
+      
+      <a-entity position="-1.3 1.3 -3" class="clickable" id="scene5-btn-a">
+        <a-box width="2" height="0.7" depth="0.1" color="#FF7043"
+          animation__hover="property: scale; to: 1.1 1.1 1.1; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <a-plane id="btn-5a-text" position="0 0 0.06" width="1.9" height="0.6" material="shader: flat"></a-plane>
+      </a-entity>
+      
+      <a-entity position="1.3 1.3 -3" class="clickable" id="scene5-btn-b">
+        <a-box width="2" height="0.7" depth="0.1" color="#42A5F5"
+          animation__hover="property: scale; to: 1.1 1.1 1.1; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <a-plane id="btn-5b-text" position="0 0 0.06" width="1.9" height="0.6" material="shader: flat"></a-plane>
+      </a-entity>
+
+      <a-plane id="consequence-5" position="0 1.5 -3" width="5" height="1.5" material="shader: flat" visible="false"></a-plane>
+    </a-entity>
+
+    <!-- 場景 6: 結尾 -->
+    <a-entity id="scene-6" visible="false">
+      <a-sky color="#FFE66D"></a-sky>
+      <a-entity light="type: ambient; intensity: 1"></a-entity>
+      
+      <a-plane id="title-6" position="0 2 -3" width="6" height="1.5" material="shader: flat"></a-plane>
+      
+      <a-entity position="0 0.8 -3" class="clickable" id="scene6-restart">
+        <a-box width="2.5" height="0.7" depth="0.1" color="#9B59B6"
+          animation__hover="property: scale; to: 1.1 1.1 1.1; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <a-plane id="btn-6-text" position="0 0 0.06" width="2.4" height="0.6" material="shader: flat"></a-plane>
+      </a-entity>
+
+      <a-plane id="thanks-6" position="0 0.2 -3" width="3" height="0.5" material="shader: flat"></a-plane>
+    </a-entity>
+
+  </a-scene>
+
+  <script>
+    // Canvas 文字渲染函數
+    function createTextCanvas(text, width, height, fontSize, color, bgColor, multiline = false) {
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      
+      // 背景
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, width, height);
+      
+      // 文字設定
+      ctx.fillStyle = color;
+      ctx.font = `bold ${fontSize}px "Microsoft JhengHei", "Noto Sans TC", Arial, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      
+      if (multiline && text.includes('\n')) {
+        const lines = text.split('\n');
+        const lineHeight = fontSize * 1.2;
+        const startY = (height - (lines.length - 1) * lineHeight) / 2;
+        lines.forEach((line, i) => {
+          ctx.fillText(line, width / 2, startY + i * lineHeight);
+        });
+      } else {
+        ctx.fillText(text, width / 2, height / 2);
+      }
+      
+      return canvas;
+    }
+
+    // 應用 Canvas 材質到元素
+    function applyTextTexture(elementId, text, width, height, fontSize, color, bgColor, multiline) {
+      const element = document.querySelector(elementId);
+      if (!element) return;
+      
+      const canvas = createTextCanvas(text, width, height, fontSize, color, bgColor, multiline);
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.needsUpdate = true;
+      
+      element.setAttribute('material', {
+        map: texture,
+        transparent: true,
+        side: THREE.DoubleSide
+      });
+    }
+
+    // 初始化所有文字
+    function initAllTexts() {
+      // 場景 1
+      applyTextTexture('#title-1', '坐在這裡的你，\n現在心裡正發生什麼？', 1024, 512, 60, '#FFFFFF', '#2C3E50', true);
+      applyTextTexture('#btn-1a-text', '我說不上來，\n但有點不舒服', 512, 256, 35, '#FFFFFF', 'transparent', true);
+      applyTextTexture('#btn-1b-text', '我還好，\n只是有點累', 512, 256, 35, '#FFFFFF', 'transparent', true);
+      applyTextTexture('#hint-1', '用視線注視選項 1.5 秒即可選擇', 1024, 256, 40, '#FFFFFF', '#34495E', false);
+      
+      // 場景 2
+      applyTextTexture('#title-2', '先讓身體慢一點，\n不用急著想清楚。', 1024, 512, 60, '#FFFFFF', '#2C3E50', true);
+      applyTextTexture('#breath-text', '深呼吸...慢慢來', 512, 256, 45, '#FFFFFF', '#2C3E50', false);
+      applyTextTexture('#btn-2-text', '我覺得好一些了', 512, 256, 40, '#FFFFFF', 'transparent', false);
+      
+      // 場景 3
+      applyTextTexture('#title-3', '剛剛有人撞到你卻沒道歉，\n你覺得是？', 1024, 512, 55, '#FFFFFF', '#2C3E50', true);
+      applyTextTexture('#btn-3a-text', '他針對我，\n真沒禮貌！', 512, 256, 35, '#FFFFFF', 'transparent', true);
+      applyTextTexture('#btn-3b-text', '也許他只是\n心裡也不好受', 512, 256, 35, '#FFFFFF', 'transparent', true);
+      applyTextTexture('#hint-3', '換個角度再看看...', 1024, 256, 45, '#FFFFFF', '#E74C3C', false);
+      
+      // 場景 4
+      applyTextTexture('#title-4', '朋友看起來在等你開口，\n你想怎麼說？', 1024, 512, 55, '#FFFFFF', '#2C3E50', true);
+      applyTextTexture('#btn-4a-text', '不要吵，\n我現在很煩。', 512, 256, 35, '#FFFFFF', 'transparent', true);
+      applyTextTexture('#btn-4b-text', '我今天不太在狀態，\n可以陪我坐一下嗎？', 512, 256, 30, '#FFFFFF', 'transparent', true);
+      applyTextTexture('#hint-4', '有時候沉默比爆炸更安全', 1024, 256, 40, '#FFFFFF', '#E74C3C', false);
+      
+      // 場景 5
+      applyTextTexture('#title-5', '訊息已經打好，\n正想按送出。你會？', 1024, 512, 55, '#FFFFFF', '#2C3E50', true);
+      applyTextTexture('#btn-5a-text', '立刻送出，\n讓對方知道我的不滿！', 512, 256, 30, '#FFFFFF', 'transparent', true);
+      applyTextTexture('#btn-5b-text', '先存成草稿，\n等心情穩了再說。', 512, 256, 32, '#FFFFFF', 'transparent', true);
+      applyTextTexture('#consequence-5', '訊息送出後，關係變得更糟了...\n\n延遲，不是逃避，\n是成熟的一種形式。', 1024, 768, 40, '#FFFFFF', '#C0392B', true);
+      
+      // 場景 6
+      applyTextTexture('#title-6', '你已經走完今天的一圈。\n\n練習不是變完美，\n而是變靠近自己。', 1024, 768, 50, '#FFFFFF', '#2C3E50', true);
+      applyTextTexture('#btn-6-text', '重新開始', 512, 256, 45, '#FFFFFF', 'transparent', false);
+      applyTextTexture('#thanks-6', '感謝你的參與', 512, 256, 40, '#FFFFFF', '#7F8C8D', false);
+    }
+
+    // 等待場景載入完成
+    document.addEventListener('DOMContentLoaded', () => {
+      const scene = document.querySelector('a-scene');
+      if (scene.hasLoaded) {
+        initAllTexts();
+        setTimeout(() => {
+          document.getElementById('loading').style.display = 'none';
+        }, 1000);
+      } else {
+        scene.addEventListener('loaded', () => {
+          initAllTexts();
+          setTimeout(() => {
+            document.getElementById('loading').style.display = 'none';
+          }, 1000);
+        });
+      }
+    });
+
+    // 場景切換函數
+    function switchScene(fromScene, toScene) {
+      const from = document.querySelector(`#scene-${fromScene}`);
+      const to = document.querySelector(`#scene-${toScene}`);
+      if (from) from.setAttribute('visible', false);
+      if (to) to.setAttribute('visible', true);
+    }
+
+    // 事件監聽
+    setTimeout(() => {
+      document.querySelector('#scene1-btn-a').addEventListener('click', () => switchScene(1, 2));
+      document.querySelector('#scene1-btn-b').addEventListener('click', () => switchScene(1, 2));
+      document.querySelector('#scene2-btn').addEventListener('click', () => switchScene(2, 3));
+      
+      document.querySelector('#scene3-btn-a').addEventListener('click', () => {
+        const hint = document.querySelector('#hint-3');
+        hint.setAttribute('visible', true);
+        setTimeout(() => hint.setAttribute('visible', false), 2500);
+      });
+      document.querySelector('#scene3-btn-b').addEventListener('click', () => switchScene(3, 4));
+      
+      document.querySelector('#scene4-btn-a').addEventListener('click', () => {
+        const hint = document.querySelector('#hint-4');
+        hint.setAttribute('visible', true);
+        setTimeout(() => hint.setAttribute('visible', false), 3000);
+      });
+      document.querySelector('#scene4-btn-b').addEventListener('click', () => switchScene(4, 5));
+      
+      document.querySelector('#scene5-btn-a').addEventListener('click', () => {
+        const consequence = document.querySelector('#consequence-5');
+        const btnA = document.querySelector('#scene5-btn-a');
+        const btnB = document.querySelector('#scene5-btn-b');
+        btnA.setAttribute('visible', false);
+        btnB.setAttribute('visible', false);
+        consequence.setAttribute('visible', true);
+        setTimeout(() => {
+          consequence.setAttribute('visible', false);
+          btnA.setAttribute('visible', true);
+          btnB.setAttribute('visible', true);
+        }, 4000);
+      });
+      document.querySelector('#scene5-btn-b').addEventListener('click', () => switchScene(5, 6));
+      
+      document.querySelector('#scene6-restart').addEventListener('click', () => location.reload());
+      
+      // 場景2按鈕延遲
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.attributeName === 'visible') {
+            const scene2 = document.querySelector('#scene-2');
+            if (scene2 && scene2.getAttribute('visible') === 'true') {
+              setTimeout(() => {
+                const btn = document.querySelector('#scene2-btn');
+                if (btn && scene2.getAttribute('visible') === 'true') {
+                  btn.setAttribute('visible', true);
+                }
+              }, 5000);
+            }
+          }
+        });
+      });
+      const scene2 = document.querySelector('#scene-2');
+      if (scene2) observer.observe(scene2, { attributes: true });
+    }, 2000);
+  </script>
+</body>
+</html>
