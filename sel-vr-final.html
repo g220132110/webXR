@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SEL 社會情緒學習 VR（完整優化版）</title>
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: "Microsoft JhengHei", "Noto Sans TC", Arial, sans-serif;
+    }
+
+    /* 固定重新開始按鈕 */
+    #restart-button {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(155, 89, 182, 0.9);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: bold;
+      border: 2px solid white;
+      cursor: pointer;
+      pointer-events: auto;
+      z-index: 2000;
+      transition: all 0.3s;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    #restart-button:hover {
+      background: rgba(142, 68, 173, 1);
+      transform: scale(1.05);
+    }
+
+    #restart-button:active {
+      transform: scale(0.95);
+    }
+
+    /* 場景轉場動畫 */
+    #transition-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1500;
+      pointer-events: none;
+    }
+
+    #transition-overlay.active {
+      display: flex;
+    }
+
+    /* 轉場圓圈進度 */
+    .transition-circle {
+      width: 120px;
+      height: 120px;
+      position: relative;
+    }
+
+    .transition-circle svg {
+      transform: rotate(-90deg);
+      width: 100%;
+      height: 100%;
+    }
+
+    .transition-circle circle {
+      fill: none;
+      stroke-width: 8;
+      stroke-linecap: round;
+    }
+
+    .transition-circle .bg-circle {
+      stroke: rgba(255, 255, 255, 0.2);
+    }
+
+    .transition-circle .progress-circle {
+      stroke: #4ECDC4;
+      stroke-dasharray: 339;
+      stroke-dashoffset: 339;
+      animation: fillCircle 1s ease-out forwards;
+    }
+
+    @keyframes fillCircle {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    .transition-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    /* UI 疊加層 */
+    #ui-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    /* 標題區 */
+    .title-box {
+      position: absolute;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(44, 62, 80, 0.9);
+      color: white;
+      padding: 20px 40px;
+      border-radius: 15px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      line-height: 1.6;
+      max-width: 80%;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    /* 按鈕區 */
+    .buttons-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 90%;
+    }
+
+    .vr-button {
+      background: #FF6B6B;
+      color: white;
+      padding: 25px 35px;
+      border-radius: 15px;
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      line-height: 1.5;
+      min-width: 200px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      pointer-events: auto;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: none;
+      position: relative;
+    }
+
+    /* 選項編號標籤 */
+    .option-number {
+      position: absolute;
+      top: -12px;
+      left: -12px;
+      background: rgba(0, 0, 0, 0.8);
+      color: #FFD700;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: bold;
+      border: 2px solid #FFD700;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+
+    .vr-button:active {
+      transform: scale(0.95);
+    }
+
+    .vr-button.green { background: #51CF66; }
+    .vr-button.blue { background: #4A90E2; }
+    .vr-button.orange { background: #FF9966; }
+    .vr-button.cyan { background: #5DADE2; }
+    .vr-button.red { background: #E74C3C; }
+    .vr-button.emerald { background: #2ECC71; }
+    .vr-button.coral { background: #FF7043; }
+    .vr-button.sky { background: #42A5F5; }
+    .vr-button.purple { background: #9B59B6; }
+
+    /* 提示區 */
+    .hint-box {
+      position: absolute;
+      bottom: 15%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(52, 73, 94, 0.8);
+      color: white;
+      padding: 15px 30px;
+      border-radius: 10px;
+      font-size: 18px;
+      text-align: center;
+      max-width: 80%;
+    }
+
+    .hint-box.warning {
+      background: rgba(231, 76, 60, 0.9);
+      animation: fadeInOut 3s;
+    }
+
+    .hint-box.info {
+      background: rgba(192, 57, 43, 0.9);
+    }
+
+    /* 呼吸圓圈文字 */
+    .breath-text {
+      position: absolute;
+      top: 60%;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      font-size: 22px;
+      background: rgba(44, 62, 80, 0.7);
+      padding: 15px 30px;
+      border-radius: 10px;
+    }
+
+    /* 結尾文字 */
+    .ending-text {
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #FFD700;
+      font-size: 20px;
+      text-align: center;
+      line-height: 1.8;
+      max-width: 80%;
+    }
+
+    .thanks-text {
+      position: absolute;
+      bottom: 25%;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255,255,255,0.7);
+      font-size: 18px;
+    }
+
+    /* 淡入淡出動畫 */
+    @keyframes fadeInOut {
+      0%, 100% { opacity: 0; }
+      20%, 80% { opacity: 1; }
+    }
+
+    /* 隱藏類 */
+    .hidden {
+      display: none !important;
+    }
+
+    /* VR 模式進度指示器 */
+    #vr-progress-indicator {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      pointer-events: none;
+      z-index: 1100;
+      display: none;
+    }
+
+    #vr-progress-indicator.active {
+      display: block;
+    }
+
+    #vr-progress-indicator svg {
+      transform: rotate(-90deg);
+      width: 100%;
+      height: 100%;
+    }
+
+    #vr-progress-indicator circle {
+      fill: none;
+      stroke-width: 6;
+      stroke-linecap: round;
+    }
+
+    #vr-progress-indicator .bg-circle {
+      stroke: rgba(255, 255, 255, 0.3);
+    }
+
+    #vr-progress-indicator .progress-circle {
+      stroke: #00ff00;
+      stroke-dasharray: 226;
+      stroke-dashoffset: 226;
+      transition: stroke-dashoffset 1.5s linear;
+    }
+
+    #vr-progress-indicator.filling .progress-circle {
+      stroke-dashoffset: 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- 固定重新開始按鈕 -->
+  <button id="restart-button" onclick="restartExperience()">🔄 重新開始</button>
+
+  <!-- 場景轉場動畫 -->
+  <div id="transition-overlay">
+    <div class="transition-circle">
+      <svg viewBox="0 0 120 120">
+        <circle class="bg-circle" cx="60" cy="60" r="54"></circle>
+        <circle class="progress-circle" cx="60" cy="60" r="54"></circle>
+      </svg>
+      <div class="transition-text">載入中</div>
+    </div>
+  </div>
+
+  <!-- VR 凝視進度指示器 -->
+  <div id="vr-progress-indicator">
+    <svg viewBox="0 0 80 80">
+      <circle class="bg-circle" cx="40" cy="40" r="36"></circle>
+      <circle class="progress-circle" cx="40" cy="40" r="36"></circle>
+    </svg>
+  </div>
+
+  <!-- UI 疊加層 -->
+  <div id="ui-overlay">
+    <!-- 場景 1: 自我覺察 -->
+    <div id="ui-scene-1" class="scene-ui">
+      <div class="title-box">
+        坐在這裡的你，<br>現在心裡正發生什麼？
+      </div>
+      <div class="buttons-container">
+        <button class="vr-button" onclick="selectOption(1, 'a')">
+          <span class="option-number">1</span>
+          我說不上來，<br>但有點不舒服
+        </button>
+        <button class="vr-button green" onclick="selectOption(1, 'b')">
+          <span class="option-number">2</span>
+          我還好，<br>只是有點累
+        </button>
+      </div>
+      <div class="hint-box">
+        選擇你的答案（共 2 個選項）<br>
+        <small style="color: #FFD700;">VR 模式：用視線注視 1.5 秒</small>
+      </div>
+    </div>
+
+    <!-- 場景 2: 自我管理 -->
+    <div id="ui-scene-2" class="scene-ui hidden">
+      <div class="title-box">
+        先讓身體慢一點，<br>不用急著想清楚。
+      </div>
+      <div class="breath-text">
+        深呼吸...慢慢來
+      </div>
+      <div class="buttons-container">
+        <button class="vr-button blue hidden" id="btn-scene-2" onclick="selectOption(2, 'continue')">
+          <span class="option-number">✓</span>
+          我覺得好一些了
+        </button>
+      </div>
+    </div>
+
+    <!-- 場景 3: 社會覺察 -->
+    <div id="ui-scene-3" class="scene-ui hidden">
+      <div class="title-box">
+        剛剛有人撞到你卻沒道歉，<br>你覺得是？
+      </div>
+      <div class="buttons-container">
+        <button class="vr-button orange" onclick="selectOption(3, 'a')">
+          <span class="option-number">1</span>
+          他針對我，<br>真沒禮貌！
+        </button>
+        <button class="vr-button cyan" onclick="selectOption(3, 'b')">
+          <span class="option-number">2</span>
+          也許他只是<br>心裡也不好受
+        </button>
+      </div>
+      <div class="hint-box warning hidden" id="hint-3">
+        換個角度再看看...
+      </div>
+    </div>
+
+    <!-- 場景 4: 人際技巧 -->
+    <div id="ui-scene-4" class="scene-ui hidden">
+      <div class="title-box">
+        朋友看起來在等你開口，<br>你想怎麼說？
+      </div>
+      <div class="buttons-container">
+        <button class="vr-button red" onclick="selectOption(4, 'a')">
+          <span class="option-number">1</span>
+          不要吵，<br>我現在很煩。
+        </button>
+        <button class="vr-button emerald" onclick="selectOption(4, 'b')">
+          <span class="option-number">2</span>
+          我今天不太在狀態，<br>可以陪我坐一下嗎？
+        </button>
+      </div>
+      <div class="hint-box warning hidden" id="hint-4">
+        有時候沉默比爆炸更安全
+      </div>
+    </div>
+
+    <!-- 場景 5: 負責任的決策 -->
+    <div id="ui-scene-5" class="scene-ui hidden">
+      <div class="title-box">
+        訊息已經打好，<br>正想按送出。你會？
+      </div>
+      <div class="buttons-container" id="buttons-5">
+        <button class="vr-button coral" onclick="selectOption(5, 'a')">
+          <span class="option-number">1</span>
+          立刻送出，<br>讓對方知道我的不滿！
+        </button>
+        <button class="vr-button sky" onclick="selectOption(5, 'b')">
+          <span class="option-number">2</span>
+          先存成草稿，<br>等心情穩了再說。
+        </button>
+      </div>
+      <div class="hint-box info hidden" id="consequence-5">
+        訊息送出後，關係變得更糟了...<br><br>
+        <span style="color: #FFD700;">延遲，不是逃避，<br>是成熟的一種形式。</span>
+      </div>
+    </div>
+
+    <!-- 場景 6: 結尾 -->
+    <div id="ui-scene-6" class="scene-ui hidden">
+      <div class="title-box" style="font-size: 26px;">
+        你已經走完今天的一圈。
+      </div>
+      <div class="ending-text">
+        練習不是變完美，<br>而是變靠近自己。
+      </div>
+      <div class="buttons-container">
+        <button class="vr-button purple" onclick="restartExperience()">
+          <span class="option-number">🔄</span>
+          重新開始
+        </button>
+      </div>
+      <div class="thanks-text">
+        感謝你的參與
+      </div>
+    </div>
+  </div>
+
+  <!-- A-Frame VR 場景 -->
+  <a-scene>
+    <a-entity id="rig" position="0 1.6 0">
+      <a-camera>
+        <a-cursor
+          id="vr-cursor"
+          fuse="true"
+          fuse-timeout="1500"
+          raycaster="objects: .clickable">
+          <a-ring color="#ffffff" radius-inner="0.02" radius-outer="0.03" opacity="0.8"></a-ring>
+        </a-cursor>
+      </a-camera>
+    </a-entity>
+
+    <!-- 場景背景（6個場景） -->
+    <a-entity id="vr-scene-1" visible="true">
+      <a-sky color="#FFE5B4"></a-sky>
+      <a-entity light="type: ambient; intensity: 0.8"></a-entity>
+      <a-box class="clickable" position="-1.3 1.5 -3" width="1.5" height="0.8" depth="0.1" color="#FF6B6B" opacity="0.3" id="vr-btn-1a"></a-box>
+      <a-box class="clickable" position="1.3 1.5 -3" width="1.5" height="0.8" depth="0.1" color="#51CF66" opacity="0.3" id="vr-btn-1b"></a-box>
+    </a-entity>
+
+    <a-entity id="vr-scene-2" visible="false">
+      <a-sky color="#B3D9FF"></a-sky>
+      <a-entity light="type: ambient; intensity: 0.8"></a-entity>
+      <a-circle radius="0.4" position="0 1.5 -3" color="#4ECDC4" opacity="0.8"
+        animation__breathe="property: scale; from: 1 1 1; to: 1.8 1.8 1.8; dir: alternate; dur: 3000; loop: true; easing: easeInOutQuad"></a-circle>
+      <a-box class="clickable" position="0 0.8 -3" width="2" height="0.8" depth="0.1" color="#4A90E2" opacity="0.3" id="vr-btn-2" visible="false"></a-box>
+    </a-entity>
+
+    <a-entity id="vr-scene-3" visible="false">
+      <a-sky color="#D5E5F2"></a-sky>
+      <a-entity light="type: ambient; intensity: 0.8"></a-entity>
+      <a-box class="clickable" position="-1.3 1.5 -3" width="1.5" height="0.8" depth="0.1" color="#FF9966" opacity="0.3" id="vr-btn-3a"></a-box>
+      <a-box class="clickable" position="1.3 1.5 -3" width="1.5" height="0.8" depth="0.1" color="#5DADE2" opacity="0.3" id="vr-btn-3b"></a-box>
+    </a-entity>
+
+    <a-entity id="vr-scene-4" visible="false">
+      <a-sky color="#F5DEB3"></a-sky>
+      <a-entity light="type: ambient; intensity: 0.8"></a-entity>
+      <a-box class="clickable" position="-1.3 1.5 -3" width="1.5" height="0.8" depth="0.1" color="#E74C3C" opacity="0.3" id="vr-btn-4a"></a-box>
+      <a-box class="clickable" position="1.3 1.5 -3" width="1.5" height="0.8" depth="0.1" color="#2ECC71" opacity="0.3" id="vr-btn-4b"></a-box>
+    </a-entity>
+
+    <a-entity id="vr-scene-5" visible="false">
+      <a-sky color="#FFDAB9"></a-sky>
+      <a-entity light="type: ambient; intensity: 0.8"></a-entity>
+      <a-box class="clickable" position="-1.3 1.5 -3" width="1.5" height="0.8" depth="0.1" color="#FF7043" opacity="0.3" id="vr-btn-5a"></a-box>
+      <a-box class="clickable" position="1.3 1.5 -3" width="1.5" height="0.8" depth="0.1" color="#42A5F5" opacity="0.3" id="vr-btn-5b"></a-box>
+    </a-entity>
+
+    <a-entity id="vr-scene-6" visible="false">
+      <a-sky color="#FFE66D"></a-sky>
+      <a-entity light="type: ambient; intensity: 1"></a-entity>
+      <a-box class="clickable" position="0 1.2 -3" width="2" height="0.8" depth="0.1" color="#9B59B6" opacity="0.3" id="vr-btn-6"></a-box>
+    </a-entity>
+  </a-scene>
+
+  <script>
+    let currentScene = 1;
+
+    // 顯示轉場動畫
+    function showTransition(duration = 1000) {
+      const overlay = document.getElementById('transition-overlay');
+      overlay.classList.add('active');
+      setTimeout(() => {
+        overlay.classList.remove('active');
+      }, duration);
+    }
+
+    // 場景切換
+    function switchScene(toScene) {
+      showTransition(1000);
+      
+      setTimeout(() => {
+        document.querySelectorAll('.scene-ui').forEach(el => el.classList.add('hidden'));
+        document.querySelector(`#ui-scene-${toScene}`).classList.remove('hidden');
+        
+        for (let i = 1; i <= 6; i++) {
+          const vrScene = document.querySelector(`#vr-scene-${i}`);
+          if (vrScene) vrScene.setAttribute('visible', false);
+        }
+        const targetVrScene = document.querySelector(`#vr-scene-${toScene}`);
+        if (targetVrScene) targetVrScene.setAttribute('visible', true);
+        
+        currentScene = toScene;
+      }, 500);
+    }
+
+    // 重新開始
+    function restartExperience() {
+      showTransition(800);
+      setTimeout(() => {
+        location.reload();
+      }, 400);
+    }
+
+    // 選項處理
+    function selectOption(scene, option) {
+      if (scene === 1) {
+        switchScene(2);
+      } else if (scene === 2) {
+        switchScene(3);
+      } else if (scene === 3) {
+        if (option === 'a') {
+          const hint = document.querySelector('#hint-3');
+          hint.classList.remove('hidden');
+          setTimeout(() => hint.classList.add('hidden'), 2500);
+        } else {
+          switchScene(4);
+        }
+      } else if (scene === 4) {
+        if (option === 'a') {
+          const hint = document.querySelector('#hint-4');
+          hint.classList.remove('hidden');
+          setTimeout(() => hint.classList.add('hidden'), 3000);
+        } else {
+          switchScene(5);
+        }
+      } else if (scene === 5) {
+        if (option === 'a') {
+          const buttons = document.querySelector('#buttons-5');
+          const consequence = document.querySelector('#consequence-5');
+          buttons.classList.add('hidden');
+          consequence.classList.remove('hidden');
+          setTimeout(() => {
+            consequence.classList.add('hidden');
+            buttons.classList.remove('hidden');
+          }, 4000);
+        } else {
+          switchScene(6);
+        }
+      }
+    }
+
+    // VR 凝視進度顯示
+    let fusingTimeout = null;
+    document.addEventListener('DOMContentLoaded', () => {
+      const cursor = document.querySelector('#vr-cursor');
+      const progressIndicator = document.getElementById('vr-progress-indicator');
+      
+      if (cursor) {
+        cursor.addEventListener('fusing', () => {
+          progressIndicator.classList.add('active', 'filling');
+        });
+        
+        cursor.addEventListener('click', () => {
+          progressIndicator.classList.remove('active', 'filling');
+        });
+        
+        cursor.addEventListener('mouseleave', () => {
+          progressIndicator.classList.remove('active', 'filling');
+        });
+      }
+    });
+
+    // VR 按鈕事件
+    setTimeout(() => {
+      document.querySelector('#vr-btn-1a').addEventListener('click', () => selectOption(1, 'a'));
+      document.querySelector('#vr-btn-1b').addEventListener('click', () => selectOption(1, 'b'));
+      document.querySelector('#vr-btn-2').addEventListener('click', () => selectOption(2, 'continue'));
+      document.querySelector('#vr-btn-3a').addEventListener('click', () => selectOption(3, 'a'));
+      document.querySelector('#vr-btn-3b').addEventListener('click', () => selectOption(3, 'b'));
+      document.querySelector('#vr-btn-4a').addEventListener('click', () => selectOption(4, 'a'));
+      document.querySelector('#vr-btn-4b').addEventListener('click', () => selectOption(4, 'b'));
+      document.querySelector('#vr-btn-5a').addEventListener('click', () => selectOption(5, 'a'));
+      document.querySelector('#vr-btn-5b').addEventListener('click', () => selectOption(5, 'b'));
+      document.querySelector('#vr-btn-6').addEventListener('click', () => restartExperience());
+    }, 1000);
+
+    // 場景 2 按鈕延遲
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'visible') {
+          const scene2 = document.querySelector('#vr-scene-2');
+          if (scene2 && scene2.getAttribute('visible') === 'true') {
+            setTimeout(() => {
+              document.querySelector('#btn-scene-2').classList.remove('hidden');
+              document.querySelector('#vr-btn-2').setAttribute('visible', true);
+            }, 5000);
+          }
+        }
+      });
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const scene2 = document.querySelector('#vr-scene-2');
+      if (scene2) observer.observe(scene2, { attributes: true });
+    });
+  </script>
+</body>
+</html>
