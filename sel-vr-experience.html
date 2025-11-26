@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SEL 社會情緒學習 VR 體驗</title>
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <a-scene>
+    <!-- 相機與凝視游標設定 -->
+    <a-entity id="rig" position="0 1.6 0">
+      <a-camera>
+        <a-cursor
+          id="cursor"
+          animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"
+          animation__fusing="property: fusing; startEvents: fusing; from: 1 1 1; to: 0.1 0.1 0.1; dur: 1500"
+          event-set__mouseenter="_target: #cursor-ring; material.color: #00ff00"
+          event-set__mouseleave="_target: #cursor-ring; material.color: #ffffff"
+          fuse="true"
+          fuse-timeout="1500"
+          raycaster="objects: .clickable">
+          <a-ring id="cursor-ring" color="#ffffff" radius-inner="0.02" radius-outer="0.03" opacity="0.9"></a-ring>
+          <a-plane id="cursor-fuse" color="#00ff00" width="0.08" height="0.08" opacity="0" position="0 0 -0.01"
+            animation__fuse="property: opacity; from: 0; to: 0.6; dur: 1500; startEvents: fusing"
+            animation__reset="property: opacity; to: 0; dur: 100; startEvents: click"></a-plane>
+        </a-cursor>
+      </a-camera>
+    </a-entity>
+
+    <!-- 場景 1: 自我覺察 Self-Awareness -->
+    <a-entity id="scene-1" visible="true">
+      <!-- 背景：清晨教室氛圍（柔和橙黃色） -->
+      <a-sky color="#FFE5B4" opacity="0.95"></a-sky>
+      <a-entity light="type: ambient; color: #FFF; intensity: 0.8"></a-entity>
+      
+      <!-- 主標題 -->
+      <a-text
+        value="坐在這裡的你，\n現在心裡正發生什麼？"
+        align="center"
+        position="0 2.2 -3"
+        width="4.5"
+        color="#2C3E50"
+        font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+      
+      <!-- 按鈕 A（左）：不舒服 -->
+      <a-entity position="-1.2 1.3 -3" class="clickable" id="scene1-btn-a">
+        <a-box width="1.8" height="0.5" depth="0.1" color="#FF6B6B" opacity="0.9"
+          animation__hover="property: scale; from: 1 1 1; to: 1.1 1.1 1.1; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <a-text value="我說不上來，\n但有點不舒服" align="center" position="0 0 0.06" width="1.6" color="#FFFFFF"></a-text>
+      </a-entity>
+      
+      <!-- 按鈕 B（右）：還好 -->
+      <a-entity position="1.2 1.3 -3" class="clickable" id="scene1-btn-b">
+        <a-box width="1.8" height="0.5" depth="0.1" color="#51CF66" opacity="0.9"
+          animation__hover="property: scale; from: 1 1 1; to: 1.1 1.1 1.1; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <a-text value="我還好，\n只是有點累" align="center" position="0 0 0.06" width="1.6" color="#FFFFFF"></a-text>
+      </a-entity>
+
+      <!-- 提示文字 -->
+      <a-text
+        value="用視線注視選項 1.5 秒即可選擇"
+        align="center"
+        position="0 0.5 -3"
+        width="3"
+        color="#7F8C8D"
+        opacity="0.7"></a-text>
+    </a-entity>
+
+    <!-- 場景 2: 自我管理 Self-Management -->
+    <a-entity id="scene-2" visible="false">
+      <!-- 背景：安定的藍色 -->
+      <a-sky color="#B3D9FF" opacity="0.95"></a-sky>
+      <a-entity light="type: ambient; color: #FFF; intensity: 0.8"></a-entity>
+      
+      <!-- 主標題 -->
+      <a-text
+        value="先讓身體慢一點，\n不用急著想清楚。"
+        align="center"
+        position="0 2.2 -3"
+        width="4.5"
+        color="#2C3E50"></a-text>
+      
+      <!-- 呼吸引導圓圈 -->
+      <a-circle
+        id="breath-circle"
+        radius="0.3"
+        position="0 1.5 -3"
+        color="#4ECDC4"
+        opacity="0.7"
+        animation__breathe="property: scale; from: 1 1 1; to: 1.5 1.5 1.5; dir: alternate; dur: 3000; loop: true; easing: easeInOutQuad"></a-circle>
+      
+      <a-text
+        value="深呼吸...慢慢來"
+        align="center"
+        position="0 0.9 -3"
+        width="2.5"
+        color="#2C3E50"
+        opacity="0.8"></a-text>
+      
+      <!-- 按鈕（5秒後出現） -->
+      <a-entity position="0 0.3 -3" class="clickable" id="scene2-btn" visible="false">
+        <a-box width="2" height="0.5" depth="0.1" color="#4A90E2" opacity="0.9"
+          animation__hover="property: scale; from: 1 1 1; to: 1.1 1.1 1.1; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <a-text value="我覺得好一些了" align="center" position="0 0 0.06" width="1.8" color="#FFFFFF"></a-text>
+      </a-entity>
+    </a-entity>
+
+    <!-- 場景 3: 社會覺察 Social Awareness -->
+    <a-entity id="scene-3" visible="false">
+      <!-- 背景：走廊灰藍色 -->
+      <a-sky color="#D5E5F2" opacity="0.95"></a-sky>
+      <a-entity light="type: ambient; color: #FFF; intensity: 0.8"></a-entity>
+      
+      <a-text
+        value="剛剛有人撞到你卻沒道歉，\n你覺得是？"
+        align="center"
+        position="0 2.2 -3"
+        width="4.5"
+        color="#2C3E50"></a-text>
+      
+      <!-- 按鈕 A：誤解 -->
+      <a-entity position="-1.2 1.3 -3" class="clickable" id="scene3-btn-a">
+        <a-box width="1.8" height="0.5" depth="0.1" color="#FF9966" opacity="0.9"
+          animation__hover="property: scale; from: 1 1 1; to: 1.1 1.1 1.1; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <a-text value="他針對我，\n真沒禮貌！" align="center" position="0 0 0.06" width="1.6" color="#FFFFFF"></a-text>
+      </a-entity>
+      
+      <!-- 按鈕 B：同理 -->
+      <a-entity position="1.2 1.3 -3" class="clickable" id="scene3-btn-b">
+        <a-box width="1.8" height="0.5" depth="0.1" color="#5DADE2" opacity="0.9"
+          animation__hover="property: scale; from: 1 1 1; to: 1.1 1.1 1.1; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <a-text value="也許他只是\n心裡也不好受" align="center" position="0 0 0.06" width="1.6" color="#FFFFFF"></a-text>
+      </a-entity>
+
+      <!-- 提示訊息（選A時顯示） -->
+      <a-text
+        id="scene3-hint"
+        value="換個角度再看看..."
+        align="center"
+        position="0 0.5 -3"
+        width="3"
+        color="#E74C3C"
+        opacity="0"
+        visible="false"></a-text>
+    </a-entity>
+
+    <!-- 場景 4: 人際技巧 Relationship Skills -->
+    <a-entity id="scene-4" visible="false">
+      <!-- 背景：樓梯溫暖色 -->
+      <a-sky color="#F5DEB3" opacity="0.95"></a-sky>
+      <a-entity light="type: ambient; color: #FFF; intensity: 0.8"></a-entity>
+      
+      <a-text
+        value="朋友看起來在等你開口，\n你想怎麼說？"
+        align="center"
+        position="0 2.2 -3"
+        width="4.5"
+        color="#2C3E50"></a-text>
+      
+      <!-- 按鈕 A：攻擊 -->
+      <a-entity position="-1.2 1.3 -3" class="clickable" id="scene4-btn-a">
+        <a-box width="1.8" height="0.5" depth="0.1" color="#E74C3C" opacity="0.9"
+          animation__hover="property: scale; from: 1 1 1; to: 1.1 1.1 1.1; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <a-text value="不要吵，\n我現在很煩。" align="center" position="0 0 0.06" width="1.6" color="#FFFFFF"></a-text>
+      </a-entity>
+      
+      <!-- 按鈕 B：I-Message -->
+      <a-entity position="1.2 1.3 -3" class="clickable" id="scene4-btn-b">
+        <a-box width="1.8" height="0.5" depth="0.1" color="#2ECC71" opacity="0.9"
+          animation__hover="property: scale; from: 1 1 1; to: 1.1 1.1 1.1; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <a-text value="我今天不太在狀態，\n可以陪我坐一下嗎？" align="center" position="0 0 0.06" width="1.5" color="#FFFFFF"></a-text>
+      </a-entity>
+
+      <!-- 警告訊息（選A時顯示） -->
+      <a-text
+        id="scene4-hint"
+        value="有時候沉默比爆炸更安全"
+        align="center"
+        position="0 0.5 -3"
+        width="3"
+        color="#E74C3C"
+        opacity="0"
+        visible="false"></a-text>
+    </a-entity>
+
+    <!-- 場景 5: 負責任的決策 Decision-Making -->
+    <a-entity id="scene-5" visible="false">
+      <!-- 背景：夕陽橘色 -->
+      <a-sky color="#FFDAB9" opacity="0.95"></a-sky>
+      <a-entity light="type: ambient; color: #FFF; intensity: 0.8"></a-entity>
+      
+      <a-text
+        value="訊息已經打好，\n正想按送出。你會？"
+        align="center"
+        position="0 2.2 -3"
+        width="4.5"
+        color="#2C3E50"></a-text>
+      
+      <!-- 按鈕 A：衝動 -->
+      <a-entity position="-1.2 1.3 -3" class="clickable" id="scene5-btn-a">
+        <a-box width="1.8" height="0.5" depth="0.1" color="#FF7043" opacity="0.9"
+          animation__hover="property: scale; from: 1 1 1; to: 1.1 1.1 1.1; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <a-text value="立刻送出，\n讓對方知道我的不滿！" align="center" position="0 0 0.06" width="1.5" color="#FFFFFF"></a-text>
+      </a-entity>
+      
+      <!-- 按鈕 B：成熟 -->
+      <a-entity position="1.2 1.3 -3" class="clickable" id="scene5-btn-b">
+        <a-box width="1.8" height="0.5" depth="0.1" color="#42A5F5" opacity="0.9"
+          animation__hover="property: scale; from: 1 1 1; to: 1.1 1.1 1.1; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <a-text value="先存成草稿，\n等心情穩了再說。" align="center" position="0 0 0.06" width="1.5" color="#FFFFFF"></a-text>
+      </a-entity>
+
+      <!-- 後果畫面 -->
+      <a-text
+        id="scene5-consequence"
+        value="訊息送出後，關係變得更糟了...\n\n延遲，不是逃避，\n是成熟的一種形式。"
+        align="center"
+        position="0 1.5 -3"
+        width="4"
+        color="#C0392B"
+        opacity="0"
+        visible="false"></a-text>
+    </a-entity>
+
+    <!-- 場景 6: 結尾 Closure -->
+    <a-entity id="scene-6" visible="false">
+      <!-- 背景：陽光金黃色 -->
+      <a-sky color="#FFE66D" opacity="0.95"></a-sky>
+      <a-entity light="type: ambient; color: #FFF; intensity: 0.9"></a-entity>
+      
+      <a-text
+        value="你已經走完今天的一圈。"
+        align="center"
+        position="0 2.5 -3"
+        width="4"
+        color="#2C3E50"></a-text>
+      
+      <a-text
+        value="練習不是變完美，\n而是變靠近自己。"
+        align="center"
+        position="0 1.8 -3"
+        width="4.5"
+        color="#34495E"
+        opacity="0.9"></a-text>
+      
+      <!-- 重新開始按鈕 -->
+      <a-entity position="0 1 -3" class="clickable" id="scene6-restart">
+        <a-box width="2" height="0.5" depth="0.1" color="#9B59B6" opacity="0.9"
+          animation__hover="property: scale; from: 1 1 1; to: 1.1 1.1 1.1; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <a-text value="重新開始" align="center" position="0 0 0.06" width="1.8" color="#FFFFFF"></a-text>
+      </a-entity>
+
+      <!-- 感謝訊息 -->
+      <a-text
+        value="感謝你的參與"
+        align="center"
+        position="0 0.4 -3"
+        width="2.5"
+        color="#7F8C8D"
+        opacity="0.7"></a-text>
+    </a-entity>
+
+  </a-scene>
+
+  <script>
+    // 場景切換函數
+    function switchScene(fromScene, toScene) {
+      const from = document.querySelector(`#scene-${fromScene}`);
+      const to = document.querySelector(`#scene-${toScene}`);
+      
+      if (from) from.setAttribute('visible', false);
+      if (to) to.setAttribute('visible', true);
+    }
+
+    // 場景 1 互動
+    document.querySelector('#scene1-btn-a').addEventListener('click', () => {
+      switchScene(1, 2);
+    });
+    document.querySelector('#scene1-btn-b').addEventListener('click', () => {
+      switchScene(1, 2);
+    });
+
+    // 場景 2 互動（5秒後顯示按鈕）
+    setTimeout(() => {
+      const btn = document.querySelector('#scene2-btn');
+      if (btn && document.querySelector('#scene-2').getAttribute('visible') === 'true') {
+        btn.setAttribute('visible', true);
+        btn.setAttribute('animation', 'property: opacity; from: 0; to: 1; dur: 800');
+      }
+    }, 5000);
+
+    document.querySelector('#scene2-btn').addEventListener('click', () => {
+      switchScene(2, 3);
+    });
+
+    // 場景 3 互動
+    document.querySelector('#scene3-btn-a').addEventListener('click', () => {
+      const hint = document.querySelector('#scene3-hint');
+      hint.setAttribute('visible', true);
+      hint.setAttribute('animation', 'property: opacity; from: 0; to: 1; dur: 500');
+      
+      // 2秒後淡出提示
+      setTimeout(() => {
+        hint.setAttribute('animation', 'property: opacity; to: 0; dur: 500');
+        setTimeout(() => hint.setAttribute('visible', false), 500);
+      }, 2000);
+    });
+
+    document.querySelector('#scene3-btn-b').addEventListener('click', () => {
+      switchScene(3, 4);
+    });
+
+    // 場景 4 互動
+    document.querySelector('#scene4-btn-a').addEventListener('click', () => {
+      const hint = document.querySelector('#scene4-hint');
+      hint.setAttribute('visible', true);
+      hint.setAttribute('animation', 'property: opacity; from: 0; to: 1; dur: 500');
+      
+      setTimeout(() => {
+        hint.setAttribute('animation', 'property: opacity; to: 0; dur: 500');
+        setTimeout(() => hint.setAttribute('visible', false), 500);
+      }, 2500);
+    });
+
+    document.querySelector('#scene4-btn-b').addEventListener('click', () => {
+      switchScene(4, 5);
+    });
+
+    // 場景 5 互動
+    document.querySelector('#scene5-btn-a').addEventListener('click', () => {
+      const consequence = document.querySelector('#scene5-consequence');
+      const btnA = document.querySelector('#scene5-btn-a');
+      const btnB = document.querySelector('#scene5-btn-b');
+      
+      // 隱藏按鈕，顯示後果
+      btnA.setAttribute('visible', false);
+      btnB.setAttribute('visible', false);
+      consequence.setAttribute('visible', true);
+      consequence.setAttribute('animation', 'property: opacity; from: 0; to: 1; dur: 800');
+      
+      // 3秒後恢復按鈕
+      setTimeout(() => {
+        consequence.setAttribute('animation', 'property: opacity; to: 0; dur: 500');
+        setTimeout(() => {
+          consequence.setAttribute('visible', false);
+          btnA.setAttribute('visible', true);
+          btnB.setAttribute('visible', true);
+        }, 500);
+      }, 3500);
+    });
+
+    document.querySelector('#scene5-btn-b').addEventListener('click', () => {
+      switchScene(5, 6);
+    });
+
+    // 場景 6 互動
+    document.querySelector('#scene6-restart').addEventListener('click', () => {
+      location.reload();
+    });
+
+    // 處理場景2按鈕的延遲顯示（當切換到場景2時）
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'visible') {
+          const scene2 = document.querySelector('#scene-2');
+          if (scene2.getAttribute('visible') === 'true') {
+            setTimeout(() => {
+              const btn = document.querySelector('#scene2-btn');
+              if (btn && scene2.getAttribute('visible') === 'true') {
+                btn.setAttribute('visible', true);
+                btn.setAttribute('animation', 'property: opacity; from: 0; to: 1; dur: 800');
+              }
+            }, 5000);
+          }
+        }
+      });
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      observer.observe(document.querySelector('#scene-2'), { attributes: true });
+    });
+  </script>
+</body>
+</html>
