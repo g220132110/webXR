@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SEL 社會情緒學習 VR 體驗（中文修復版）</title>
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+    /* 載入提示 */
+    #loading {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 24px;
+      font-family: Arial, sans-serif;
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body>
+  <div id="loading">載入中...</div>
+
+  <a-scene>
+    <!-- 預載中文字體 -->
+    <a-assets>
+      <!-- 使用 A-Frame 內建的支援中文字體 -->
+      <img id="font-image" src="https://cdn.aframe.io/fonts/mozillavr.png" crossorigin="anonymous">
+      <img id="font-msdf" src="https://cdn.jsdelivr.net/gh/etiennepinchon/aframe-fonts@master/fonts/custom-msdf.png" crossorigin="anonymous">
+    </a-assets>
+
+    <!-- 相機與凝視游標設定 -->
+    <a-entity id="rig" position="0 1.6 0">
+      <a-camera>
+        <!-- 加強凝視游標視覺 -->
+        <a-cursor
+          id="cursor"
+          animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"
+          animation__fusing="property: scale; startEvents: fusing; from: 1 1 1; to: 0.8 0.8 0.8; dur: 1500"
+          fuse="true"
+          fuse-timeout="1500"
+          raycaster="objects: .clickable">
+          <!-- 外圈（白色） -->
+          <a-ring id="cursor-ring" color="#ffffff" radius-inner="0.025" radius-outer="0.035" opacity="1"></a-ring>
+          <!-- 填充進度（綠色） -->
+          <a-circle id="cursor-fuse" color="#00ff00" radius="0.025" opacity="0"
+            animation__fuse="property: opacity; from: 0; to: 0.8; dur: 1500; startEvents: fusing"
+            animation__reset="property: opacity; to: 0; dur: 100; startEvents: click"></a-circle>
+        </a-cursor>
+      </a-camera>
+    </a-entity>
+
+    <!-- 場景 1: 自我覺察 -->
+    <a-entity id="scene-1" visible="true">
+      <a-sky color="#FFE5B4" opacity="0.95"></a-sky>
+      <a-entity light="type: ambient; color: #FFF; intensity: 0.9"></a-entity>
+      
+      <!-- 主標題（使用純文字和背景板） -->
+      <a-plane width="5" height="1.2" color="#2C3E50" opacity="0.85" position="0 2.2 -3.5"></a-plane>
+      <a-entity position="0 2.5 -3.4">
+        <a-text 
+          value="坐在這裡的你，" 
+          align="center" 
+          width="6"
+          color="#FFFFFF"
+          shader="msdf"
+          font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+      </a-entity>
+      <a-entity position="0 2.1 -3.4">
+        <a-text 
+          value="現在心裡正發生什麼？" 
+          align="center" 
+          width="6"
+          color="#FFFFFF"
+          shader="msdf"
+          font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+      </a-entity>
+      
+      <!-- 按鈕 A（左）：不舒服 -->
+      <a-entity position="-1.5 1.3 -3" class="clickable" id="scene1-btn-a">
+        <a-box width="2.2" height="0.8" depth="0.15" color="#FF6B6B" opacity="0.95"
+          animation__hover="property: scale; from: 1 1 1; to: 1.15 1.15 1.15; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <!-- 分兩行顯示 -->
+        <a-entity position="0 0.15 0.08">
+          <a-text 
+            value="我說不上來，" 
+            align="center" 
+            width="2"
+            color="#FFFFFF"
+            shader="msdf"
+            font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+        </a-entity>
+        <a-entity position="0 -0.15 0.08">
+          <a-text 
+            value="但有點不舒服" 
+            align="center" 
+            width="2"
+            color="#FFFFFF"
+            shader="msdf"
+            font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+        </a-entity>
+      </a-entity>
+      
+      <!-- 按鈕 B（右）：還好 -->
+      <a-entity position="1.5 1.3 -3" class="clickable" id="scene1-btn-b">
+        <a-box width="2.2" height="0.8" depth="0.15" color="#51CF66" opacity="0.95"
+          animation__hover="property: scale; from: 1 1 1; to: 1.15 1.15 1.15; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <a-entity position="0 0.15 0.08">
+          <a-text 
+            value="我還好，" 
+            align="center" 
+            width="2"
+            color="#FFFFFF"
+            shader="msdf"
+            font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+        </a-entity>
+        <a-entity position="0 -0.15 0.08">
+          <a-text 
+            value="只是有點累" 
+            align="center" 
+            width="2"
+            color="#FFFFFF"
+            shader="msdf"
+            font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+        </a-entity>
+      </a-entity>
+
+      <!-- 提示文字 -->
+      <a-plane width="4.5" height="0.6" color="#34495E" opacity="0.7" position="0 0.4 -3.5"></a-plane>
+      <a-entity position="0 0.55 -3.4">
+        <a-text 
+          value="用視線注視選項" 
+          align="center" 
+          width="4"
+          color="#FFFFFF"
+          shader="msdf"
+          font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+      </a-entity>
+      <a-entity position="0 0.25 -3.4">
+        <a-text 
+          value="1.5 秒即可選擇" 
+          align="center" 
+          width="4"
+          color="#FFD700"
+          shader="msdf"
+          font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+      </a-entity>
+    </a-entity>
+
+    <!-- 場景 2: 自我管理 -->
+    <a-entity id="scene-2" visible="false">
+      <a-sky color="#B3D9FF" opacity="0.95"></a-sky>
+      <a-entity light="type: ambient; color: #FFF; intensity: 0.9"></a-entity>
+      
+      <!-- 主標題 -->
+      <a-plane width="5" height="1.2" color="#2C3E50" opacity="0.85" position="0 2.2 -3.5"></a-plane>
+      <a-entity position="0 2.5 -3.4">
+        <a-text 
+          value="先讓身體慢一點，" 
+          align="center" 
+          width="6"
+          color="#FFFFFF"
+          shader="msdf"
+          font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+      </a-entity>
+      <a-entity position="0 2.1 -3.4">
+        <a-text 
+          value="不用急著想清楚。" 
+          align="center" 
+          width="6"
+          color="#FFFFFF"
+          shader="msdf"
+          font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+      </a-entity>
+      
+      <!-- 呼吸引導圓圈 -->
+      <a-circle
+        id="breath-circle"
+        radius="0.4"
+        position="0 1.3 -3"
+        color="#4ECDC4"
+        opacity="0.8"
+        animation__breathe="property: scale; from: 1 1 1; to: 1.8 1.8 1.8; dir: alternate; dur: 3000; loop: true; easing: easeInOutQuad"></a-circle>
+      
+      <a-plane width="3" height="0.5" color="#2C3E50" opacity="0.7" position="0 0.6 -3.5"></a-plane>
+      <a-entity position="0 0.6 -3.4">
+        <a-text 
+          value="深呼吸...慢慢來" 
+          align="center" 
+          width="3.5"
+          color="#FFFFFF"
+          shader="msdf"
+          font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+      </a-entity>
+      
+      <!-- 按鈕（5秒後出現） -->
+      <a-entity position="0 0 -3" class="clickable" id="scene2-btn" visible="false">
+        <a-box width="2.5" height="0.7" depth="0.15" color="#4A90E2" opacity="0.95"
+          animation__hover="property: scale; from: 1 1 1; to: 1.15 1.15 1.15; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <a-entity position="0 0 0.08">
+          <a-text 
+            value="我覺得好一些了" 
+            align="center" 
+            width="2.3"
+            color="#FFFFFF"
+            shader="msdf"
+            font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+        </a-entity>
+      </a-entity>
+    </a-entity>
+
+    <!-- 場景 3: 社會覺察 -->
+    <a-entity id="scene-3" visible="false">
+      <a-sky color="#D5E5F2" opacity="0.95"></a-sky>
+      <a-entity light="type: ambient; color: #FFF; intensity: 0.9"></a-entity>
+      
+      <a-plane width="5.5" height="1.2" color="#2C3E50" opacity="0.85" position="0 2.2 -3.5"></a-plane>
+      <a-entity position="0 2.5 -3.4">
+        <a-text 
+          value="剛剛有人撞到你卻沒道歉，" 
+          align="center" 
+          width="6"
+          color="#FFFFFF"
+          shader="msdf"
+          font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+      </a-entity>
+      <a-entity position="0 2.1 -3.4">
+        <a-text 
+          value="你覺得是？" 
+          align="center" 
+          width="6"
+          color="#FFFFFF"
+          shader="msdf"
+          font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+      </a-entity>
+      
+      <!-- 按鈕 A：誤解 -->
+      <a-entity position="-1.5 1.3 -3" class="clickable" id="scene3-btn-a">
+        <a-box width="2.2" height="0.8" depth="0.15" color="#FF9966" opacity="0.95"
+          animation__hover="property: scale; from: 1 1 1; to: 1.15 1.15 1.15; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <a-entity position="0 0.15 0.08">
+          <a-text 
+            value="他針對我，" 
+            align="center" 
+            width="2"
+            color="#FFFFFF"
+            shader="msdf"
+            font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+        </a-entity>
+        <a-entity position="0 -0.15 0.08">
+          <a-text 
+            value="真沒禮貌！" 
+            align="center" 
+            width="2"
+            color="#FFFFFF"
+            shader="msdf"
+            font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+        </a-entity>
+      </a-entity>
+      
+      <!-- 按鈕 B：同理 -->
+      <a-entity position="1.5 1.3 -3" class="clickable" id="scene3-btn-b">
+        <a-box width="2.2" height="0.8" depth="0.15" color="#5DADE2" opacity="0.95"
+          animation__hover="property: scale; from: 1 1 1; to: 1.15 1.15 1.15; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <a-entity position="0 0.15 0.08">
+          <a-text 
+            value="也許他只是" 
+            align="center" 
+            width="2"
+            color="#FFFFFF"
+            shader="msdf"
+            font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+        </a-entity>
+        <a-entity position="0 -0.15 0.08">
+          <a-text 
+            value="心裡也不好受" 
+            align="center" 
+            width="2"
+            color="#FFFFFF"
+            shader="msdf"
+            font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+        </a-entity>
+      </a-entity>
+
+      <!-- 提示訊息（選A時顯示） -->
+      <a-plane width="4" height="0.6" color="#E74C3C" opacity="0" position="0 0.4 -3.5" id="scene3-hint-bg"></a-plane>
+      <a-entity position="0 0.4 -3.4" id="scene3-hint" visible="false">
+        <a-text 
+          value="換個角度再看看..." 
+          align="center" 
+          width="3.5"
+          color="#FFFFFF"
+          shader="msdf"
+          font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+      </a-entity>
+    </a-entity>
+
+    <!-- 場景 4: 人際技巧 -->
+    <a-entity id="scene-4" visible="false">
+      <a-sky color="#F5DEB3" opacity="0.95"></a-sky>
+      <a-entity light="type: ambient; color: #FFF; intensity: 0.9"></a-entity>
+      
+      <a-plane width="5.5" height="1.2" color="#2C3E50" opacity="0.85" position="0 2.2 -3.5"></a-plane>
+      <a-entity position="0 2.5 -3.4">
+        <a-text 
+          value="朋友看起來在等你開口，" 
+          align="center" 
+          width="6"
+          color="#FFFFFF"
+          shader="msdf"
+          font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+      </a-entity>
+      <a-entity position="0 2.1 -3.4">
+        <a-text 
+          value="你想怎麼說？" 
+          align="center" 
+          width="6"
+          color="#FFFFFF"
+          shader="msdf"
+          font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+      </a-entity>
+      
+      <!-- 按鈕 A：攻擊 -->
+      <a-entity position="-1.5 1.3 -3" class="clickable" id="scene4-btn-a">
+        <a-box width="2.2" height="0.8" depth="0.15" color="#E74C3C" opacity="0.95"
+          animation__hover="property: scale; from: 1 1 1; to: 1.15 1.15 1.15; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <a-entity position="0 0.15 0.08">
+          <a-text 
+            value="不要吵，" 
+            align="center" 
+            width="2"
+            color="#FFFFFF"
+            shader="msdf"
+            font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+        </a-entity>
+        <a-entity position="0 -0.15 0.08">
+          <a-text 
+            value="我現在很煩。" 
+            align="center" 
+            width="2"
+            color="#FFFFFF"
+            shader="msdf"
+            font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+        </a-entity>
+      </a-entity>
+      
+      <!-- 按鈕 B：I-Message -->
+      <a-entity position="1.5 1.3 -3" class="clickable" id="scene4-btn-b">
+        <a-box width="2.2" height="0.8" depth="0.15" color="#2ECC71" opacity="0.95"
+          animation__hover="property: scale; from: 1 1 1; to: 1.15 1.15 1.15; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <a-entity position="0 0.2 0.08">
+          <a-text 
+            value="我今天不太在狀態，" 
+            align="center" 
+            width="1.9"
+            color="#FFFFFF"
+            shader="msdf"
+            font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+        </a-entity>
+        <a-entity position="0 -0.2 0.08">
+          <a-text 
+            value="可以陪我坐一下嗎？" 
+            align="center" 
+            width="1.9"
+            color="#FFFFFF"
+            shader="msdf"
+            font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+        </a-entity>
+      </a-entity>
+
+      <!-- 警告訊息 -->
+      <a-plane width="4.5" height="0.6" color="#E74C3C" opacity="0" position="0 0.4 -3.5" id="scene4-hint-bg"></a-plane>
+      <a-entity position="0 0.4 -3.4" id="scene4-hint" visible="false">
+        <a-text 
+          value="有時候沉默比爆炸更安全" 
+          align="center" 
+          width="4"
+          color="#FFFFFF"
+          shader="msdf"
+          font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+      </a-entity>
+    </a-entity>
+
+    <!-- 場景 5: 負責任的決策 -->
+    <a-entity id="scene-5" visible="false">
+      <a-sky color="#FFDAB9" opacity="0.95"></a-sky>
+      <a-entity light="type: ambient; color: #FFF; intensity: 0.9"></a-entity>
+      
+      <a-plane width="5" height="1.2" color="#2C3E50" opacity="0.85" position="0 2.2 -3.5"></a-plane>
+      <a-entity position="0 2.5 -3.4">
+        <a-text 
+          value="訊息已經打好，" 
+          align="center" 
+          width="6"
+          color="#FFFFFF"
+          shader="msdf"
+          font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+      </a-entity>
+      <a-entity position="0 2.1 -3.4">
+        <a-text 
+          value="正想按送出。你會？" 
+          align="center" 
+          width="6"
+          color="#FFFFFF"
+          shader="msdf"
+          font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+      </a-entity>
+      
+      <!-- 按鈕 A：衝動 -->
+      <a-entity position="-1.5 1.3 -3" class="clickable" id="scene5-btn-a">
+        <a-box width="2.2" height="0.8" depth="0.15" color="#FF7043" opacity="0.95"
+          animation__hover="property: scale; from: 1 1 1; to: 1.15 1.15 1.15; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <a-entity position="0 0.2 0.08">
+          <a-text 
+            value="立刻送出，" 
+            align="center" 
+            width="2"
+            color="#FFFFFF"
+            shader="msdf"
+            font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+        </a-entity>
+        <a-entity position="0 -0.2 0.08">
+          <a-text 
+            value="讓對方知道我的不滿！" 
+            align="center" 
+            width="1.8"
+            color="#FFFFFF"
+            shader="msdf"
+            font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+        </a-entity>
+      </a-entity>
+      
+      <!-- 按鈕 B：成熟 -->
+      <a-entity position="1.5 1.3 -3" class="clickable" id="scene5-btn-b">
+        <a-box width="2.2" height="0.8" depth="0.15" color="#42A5F5" opacity="0.95"
+          animation__hover="property: scale; from: 1 1 1; to: 1.15 1.15 1.15; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <a-entity position="0 0.2 0.08">
+          <a-text 
+            value="先存成草稿，" 
+            align="center" 
+            width="2"
+            color="#FFFFFF"
+            shader="msdf"
+            font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+        </a-entity>
+        <a-entity position="0 -0.2 0.08">
+          <a-text 
+            value="等心情穩了再說。" 
+            align="center" 
+            width="2"
+            color="#FFFFFF"
+            shader="msdf"
+            font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+        </a-entity>
+      </a-entity>
+
+      <!-- 後果畫面 -->
+      <a-plane width="5" height="2" color="#C0392B" opacity="0" position="0 1.3 -3.5" id="scene5-consequence-bg"></a-plane>
+      <a-entity id="scene5-consequence" visible="false">
+        <a-entity position="0 1.7 -3.4">
+          <a-text 
+            value="訊息送出後，" 
+            align="center" 
+            width="4.5"
+            color="#FFFFFF"
+            shader="msdf"
+            font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+        </a-entity>
+        <a-entity position="0 1.4 -3.4">
+          <a-text 
+            value="關係變得更糟了..." 
+            align="center" 
+            width="4.5"
+            color="#FFFFFF"
+            shader="msdf"
+            font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+        </a-entity>
+        <a-entity position="0 1 -3.4">
+          <a-text 
+            value="延遲，不是逃避，" 
+            align="center" 
+            width="4.5"
+            color="#FFD700"
+            shader="msdf"
+            font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+        </a-entity>
+        <a-entity position="0 0.7 -3.4">
+          <a-text 
+            value="是成熟的一種形式。" 
+            align="center" 
+            width="4.5"
+            color="#FFD700"
+            shader="msdf"
+            font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+        </a-entity>
+      </a-entity>
+    </a-entity>
+
+    <!-- 場景 6: 結尾 -->
+    <a-entity id="scene-6" visible="false">
+      <a-sky color="#FFE66D" opacity="0.95"></a-sky>
+      <a-entity light="type: ambient; color: #FFF; intensity: 1"></a-entity>
+      
+      <a-plane width="5" height="2" color="#2C3E50" opacity="0.85" position="0 2 -3.5"></a-plane>
+      <a-entity position="0 2.5 -3.4">
+        <a-text 
+          value="你已經走完今天的一圈。" 
+          align="center" 
+          width="5"
+          color="#FFFFFF"
+          shader="msdf"
+          font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+      </a-entity>
+      <a-entity position="0 2.1 -3.4">
+        <a-text 
+          value="練習不是變完美，" 
+          align="center" 
+          width="5"
+          color="#FFD700"
+          shader="msdf"
+          font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+      </a-entity>
+      <a-entity position="0 1.7 -3.4">
+        <a-text 
+          value="而是變靠近自己。" 
+          align="center" 
+          width="5"
+          color="#FFD700"
+          shader="msdf"
+          font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+      </a-entity>
+      
+      <!-- 重新開始按鈕 -->
+      <a-entity position="0 0.8 -3" class="clickable" id="scene6-restart">
+        <a-box width="2.5" height="0.7" depth="0.15" color="#9B59B6" opacity="0.95"
+          animation__hover="property: scale; from: 1 1 1; to: 1.15 1.15 1.15; dur: 200; startEvents: mouseenter"
+          animation__leave="property: scale; to: 1 1 1; dur: 200; startEvents: mouseleave"></a-box>
+        <a-entity position="0 0 0.08">
+          <a-text 
+            value="重新開始" 
+            align="center" 
+            width="2.3"
+            color="#FFFFFF"
+            shader="msdf"
+            font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+        </a-entity>
+      </a-entity>
+
+      <a-plane width="3" height="0.5" color="#7F8C8D" opacity="0.6" position="0 0.2 -3.5"></a-plane>
+      <a-entity position="0 0.2 -3.4">
+        <a-text 
+          value="感謝你的參與" 
+          align="center" 
+          width="2.8"
+          color="#FFFFFF"
+          shader="msdf"
+          font="https://cdn.aframe.io/fonts/Roboto-msdf.json"></a-text>
+      </a-entity>
+    </a-entity>
+
+  </a-scene>
+
+  <script>
+    // 移除載入提示
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        document.getElementById('loading').style.display = 'none';
+      }, 2000);
+    });
+
+    // 場景切換函數
+    function switchScene(fromScene, toScene) {
+      const from = document.querySelector(`#scene-${fromScene}`);
+      const to = document.querySelector(`#scene-${toScene}`);
+      
+      if (from) from.setAttribute('visible', false);
+      if (to) to.setAttribute('visible', true);
+    }
+
+    // 場景 1 互動
+    document.querySelector('#scene1-btn-a').addEventListener('click', () => {
+      switchScene(1, 2);
+    });
+    document.querySelector('#scene1-btn-b').addEventListener('click', () => {
+      switchScene(1, 2);
+    });
+
+    // 場景 2 互動
+    document.querySelector('#scene2-btn').addEventListener('click', () => {
+      switchScene(2, 3);
+    });
+
+    // 場景 3 互動
+    document.querySelector('#scene3-btn-a').addEventListener('click', () => {
+      const hint = document.querySelector('#scene3-hint');
+      const hintBg = document.querySelector('#scene3-hint-bg');
+      hint.setAttribute('visible', true);
+      hintBg.setAttribute('animation', 'property: opacity; from: 0; to: 0.9; dur: 500');
+      
+      setTimeout(() => {
+        hintBg.setAttribute('animation', 'property: opacity; to: 0; dur: 500');
+        setTimeout(() => hint.setAttribute('visible', false), 500);
+      }, 2500);
+    });
+
+    document.querySelector('#scene3-btn-b').addEventListener('click', () => {
+      switchScene(3, 4);
+    });
+
+    // 場景 4 互動
+    document.querySelector('#scene4-btn-a').addEventListener('click', () => {
+      const hint = document.querySelector('#scene4-hint');
+      const hintBg = document.querySelector('#scene4-hint-bg');
+      hint.setAttribute('visible', true);
+      hintBg.setAttribute('animation', 'property: opacity; from: 0; to: 0.9; dur: 500');
+      
+      setTimeout(() => {
+        hintBg.setAttribute('animation', 'property: opacity; to: 0; dur: 500');
+        setTimeout(() => hint.setAttribute('visible', false), 500);
+      }, 3000);
+    });
+
+    document.querySelector('#scene4-btn-b').addEventListener('click', () => {
+      switchScene(4, 5);
+    });
+
+    // 場景 5 互動
+    document.querySelector('#scene5-btn-a').addEventListener('click', () => {
+      const consequence = document.querySelector('#scene5-consequence');
+      const consequenceBg = document.querySelector('#scene5-consequence-bg');
+      const btnA = document.querySelector('#scene5-btn-a');
+      const btnB = document.querySelector('#scene5-btn-b');
+      
+      btnA.setAttribute('visible', false);
+      btnB.setAttribute('visible', false);
+      consequence.setAttribute('visible', true);
+      consequenceBg.setAttribute('animation', 'property: opacity; from: 0; to: 0.9; dur: 800');
+      
+      setTimeout(() => {
+        consequenceBg.setAttribute('animation', 'property: opacity; to: 0; dur: 500');
+        setTimeout(() => {
+          consequence.setAttribute('visible', false);
+          btnA.setAttribute('visible', true);
+          btnB.setAttribute('visible', true);
+        }, 500);
+      }, 4000);
+    });
+
+    document.querySelector('#scene5-btn-b').addEventListener('click', () => {
+      switchScene(5, 6);
+    });
+
+    // 場景 6 互動
+    document.querySelector('#scene6-restart').addEventListener('click', () => {
+      location.reload();
+    });
+
+    // 場景2按鈕延遲顯示
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'visible') {
+          const scene2 = document.querySelector('#scene-2');
+          if (scene2 && scene2.getAttribute('visible') === 'true') {
+            setTimeout(() => {
+              const btn = document.querySelector('#scene2-btn');
+              if (btn && scene2.getAttribute('visible') === 'true') {
+                btn.setAttribute('visible', true);
+                btn.setAttribute('animation', 'property: opacity; from: 0; to: 1; dur: 800');
+              }
+            }, 5000);
+          }
+        }
+      });
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const scene2 = document.querySelector('#scene-2');
+      if (scene2) {
+        observer.observe(scene2, { attributes: true });
+      }
+    });
+  </script>
+</body>
+</html>
